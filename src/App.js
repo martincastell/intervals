@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import 'normalize.css';
 import './App.css';
 import IntervalConfig from './components/IntervalConfig/IntervalConfig';
 import {setRoundsTo, setRoundTimeTo} from './state/appState';
