@@ -1,3 +1,9 @@
+export const INTERVAL_STATUS = {
+  STOPPED: 'STOPPED',
+  RUNNING: 'RUNNING',
+  PAUSED: 'PAUSED',
+};
+
 function updateConfig(config = {}, changes) {
   return {
     ...config,
@@ -49,11 +55,13 @@ export function getRunningIntervalState({config, startTime, pauseTime}) {
     const roundRemaining = round * config.roundTime - totalElapsed;
 
     return {
+      status: pauseTime ? INTERVAL_STATUS.PAUSED : INTERVAL_STATUS.RUNNING,
       round,
       roundRemaining: roundRemaining.toFixed(1),
     }
   } else {
     return {
+      status: INTERVAL_STATUS.STOPPED,
       round: 1,
       roundRemaining: config.roundTime,
     }

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import 'normalize.css';
 import './App.css';
-import {getRunningIntervalState, pause, reset, resume, setRoundsTo, setRoundTimeTo, start} from './state/appState';
+import {getRunningIntervalState, INTERVAL_STATUS, pause, reset, resume, setRoundsTo, setRoundTimeTo, start} from './state/appState';
 import IntervalConfig from './components/IntervalConfig/IntervalConfig';
 import {pipe} from './util/functional';
 
@@ -38,6 +38,7 @@ class App extends Component {
   render() {
     const {config, startTime, pauseTime} = this.state;
     const interval = getRunningIntervalState(this.state);
+    const status = interval.status;
 
     return (
       <div className="App">
@@ -45,10 +46,13 @@ class App extends Component {
                         onRoundsChange={this.onRoundsChange}
                         onRoundTimeChange={this.onRoundTimeChange} />
         <div>
-          { !startTime ? <button type="button" onClick={this.start}>Start</button> : null }
-          { startTime && !pauseTime ? <button type="button" onClick={this.pause}>Pause</button> : null }
-          { pauseTime ? <button type="button" onClick={this.resume}>Resume</button> : null }
-          { startTime ? <button type="button" onClick={this.reset}>Reset</button> : null }
+          { status === INTERVAL_STATUS.STOPPED ? <button type="button" onClick={this.start}>Start</button> : null }
+          { status === INTERVAL_STATUS.RUNNING ? <button type="button" onClick={this.pause}>Pause</button> : null }
+          { status === INTERVAL_STATUS.PAUSED ? <button type="button" onClick={this.resume}>Resume</button> : null }
+          { status === INTERVAL_STATUS.RUNNING || status === INTERVAL_STATUS.PAUSED ?
+            <button type="button" onClick={this.reset}>Reset</button> :
+            null
+          }
         </div>
         <div>startTime: {startTime}</div>
         <div>pauseTime: {pauseTime}</div>
