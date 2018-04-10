@@ -3,6 +3,9 @@ import 'normalize.css';
 import './App.css';
 import {getRunningIntervalState, pause, reset, resume, setRoundsTo, setRoundTimeTo, start} from './state/appState';
 import IntervalConfig from './components/IntervalConfig/IntervalConfig';
+import {pipe} from './util/functional';
+
+const getEventTargetValue = (event) => event.target.value;
 
 class App extends Component {
 
@@ -18,30 +21,20 @@ class App extends Component {
     isRunning: false,
   };
 
-  start = () => {
-    this.tick();
-    this.setState(start);
-  };
-  pause = () => {
-    this.cancelTick();
-    this.setState(pause);
-  };
-  resume = () => {
-    this.tick();
-    this.setState(resume)
-  };
-  reset = () => {
-    this.cancelTick();
-    this.setState(reset)
-  };
-  onRoundsChange = (event) => this.setState(setRoundsTo(event.target.value));
-  onRoundTimeChange = (event) => this.setState(setRoundTimeTo(event.target.value));
-
+  // Animation loop functions
+  clearAnimationRequest = () => this.setState({ request: null});
   tick = () => this.setState({ request: requestAnimationFrame(this.tick) });
-  cancelTick = () => {
-    cancelAnimationFrame(this.state.request);
-    this.setState({ request: null});
-  };
+  cancelTick = pipe(() => this.state.request, cancelAnimationFrame, this.clearAnimationRequest);
+
+  // State
+  start = pipe(this.tick, () => this.setState(start));
+  pause = pipe(this.cancelTick, () => this.setState(pause));
+  resume = pipe(this.tick, () => this.setState(resume));
+  reset = pipe(this.cancelTick, () => this.setState(reset));
+
+  // Event Listeners
+  onRoundsChange = pipe(getEventTargetValue, (rounds) => this.setState(setRoundsTo(rounds)));
+  onRoundTimeChange = pipe(getEventTargetValue, (roundTime) => this.setState(setRoundTimeTo(roundTime)));
 
   render() {
     const {config, isRunning, startTime, pauseTime} = this.state;
@@ -53,10 +46,10 @@ class App extends Component {
                         onRoundsChange={this.onRoundsChange}
                         onRoundTimeChange={this.onRoundTimeChange} />
         <div>
-          <button type="button" onClick={this.start}>Start</button>
-          <button type="button" onClick={this.pause}>Pause</button>
-          <button type="button" onClick={this.resume}>Resume</button>
-          <button type="button" onClick={this.reset}>Reset</button>
+          { !startTime ? <button type="button" onClick={this.start}>Start</button> : null }
+          { startTime && !pauseTime ? <button type="button" onClick={this.pause}>Pause</button> : null }
+          { pauseTime ? <button type="button" onClick={this.resume}>Resume</button> : null }
+          { startTime ? <button type="button" onClick={this.reset}>Reset</button> : null }
         </div>
         <div>isRunning: {isRunning}</div>
         <div>startTime: {startTime}</div>
