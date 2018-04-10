@@ -47,11 +47,26 @@ export function resume({pauseTime, startTime}) {
   };
 }
 
+function getTotalElapsed({pauseTime, startTime}) {
+  return startTime ?
+    ((pauseTime || Date.now()) - startTime) / 1000 :
+    0;
+}
+
+function getRound(totalElapsed, roundTime) {
+  return Math.floor(totalElapsed/roundTime) + 1;
+}
+
+export function stopIfDone(state) {
+  const totalElapsed = getTotalElapsed(state);
+  const round = getRound(totalElapsed, state.config.roundTime);
+  return round > state.config.rounds ? { startTime: null } : null;
+}
+
 export function getRunningIntervalState({config, startTime, pauseTime}) {
   if (startTime) {
-    const now = Date.now();
-    const totalElapsed = ((pauseTime || now) - startTime) / 1000;
-    const round = Math.floor(totalElapsed/config.roundTime) + 1;
+    const totalElapsed = getTotalElapsed({pauseTime, startTime});
+    const round = getRound(totalElapsed, config.roundTime);
     const roundRemaining = round * config.roundTime - totalElapsed;
 
     return {

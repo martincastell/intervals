@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import 'normalize.css';
 import './App.css';
-import {getRunningIntervalState, INTERVAL_STATUS, pause, reset, resume, setRoundsTo, setRoundTimeTo, start} from './state/appState';
+import {
+  getRunningIntervalState, INTERVAL_STATUS, pause, reset, resume, setRoundsTo, setRoundTimeTo, start,
+  stopIfDone
+} from './state/appState';
 import IntervalConfig from './components/IntervalConfig/IntervalConfig';
 import {pipe} from './util/functional';
 
@@ -20,16 +23,17 @@ class App extends Component {
     pauseTime: null,
   };
 
-  // Animation loop functions
-  clearAnimationRequest = () => this.setState({ request: null});
-  tick = () => this.setState({ request: requestAnimationFrame(this.tick) });
-  cancelTick = pipe(() => this.state.request, cancelAnimationFrame, this.clearAnimationRequest);
+  // Animation loop
+  tick = () => this.setState(stopIfDone, () => {
+    const isRunning = this.state.startTime && !this.state.pauseTime;
+    this.setState({ request: isRunning ? requestAnimationFrame(this.tick) : null });
+  });
 
   // State
-  start = pipe(this.tick, () => this.setState(start));
-  pause = pipe(this.cancelTick, () => this.setState(pause));
-  resume = pipe(this.tick, () => this.setState(resume));
-  reset = pipe(this.cancelTick, () => this.setState(reset));
+  start = pipe(() => this.setState(start), this.tick);
+  resume = pipe(() => this.setState(resume), this.tick);
+  pause = () => this.setState(pause);
+  reset = () => this.setState(reset);
 
   // Event Listeners
   onRoundsChange = pipe(getEventTargetValue, (rounds) => this.setState(setRoundsTo(rounds)));
