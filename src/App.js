@@ -36,9 +36,8 @@ class App extends Component {
   onRoundTimeChange = pipe(getEventTargetValue, (roundTime) => this.setState(setRoundTimeTo(roundTime)));
 
   render() {
-    const {config, startTime, pauseTime} = this.state;
-    const interval = getRunningIntervalState(this.state);
-    const status = interval.status;
+    const {config} = this.state;
+    const {status, round, roundRemaining} = getRunningIntervalState(this.state);
 
     return (
       <div className="App">
@@ -54,10 +53,8 @@ class App extends Component {
             null
           }
         </div>
-        <div>startTime: {startTime}</div>
-        <div>pauseTime: {pauseTime}</div>
-        <div>Current Round: {interval.round}</div>
-        <div>Current Round Remaining: {interval.roundRemaining}</div>
+        <div>Current Round: {round}</div>
+        <div>Current Round Remaining: {roundRemaining}</div>
       </div>
     );
   }
