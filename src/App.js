@@ -18,7 +18,6 @@ class App extends Component {
     // interval instance...
     startTime: null,
     pauseTime: null,
-    isRunning: false,
   };
 
   // Animation loop functions
@@ -37,7 +36,7 @@ class App extends Component {
   onRoundTimeChange = pipe(getEventTargetValue, (roundTime) => this.setState(setRoundTimeTo(roundTime)));
 
   render() {
-    const {config, isRunning, startTime, pauseTime} = this.state;
+    const {config, startTime, pauseTime} = this.state;
     const interval = getRunningIntervalState(this.state);
 
     return (
@@ -51,7 +50,6 @@ class App extends Component {
           { pauseTime ? <button type="button" onClick={this.resume}>Resume</button> : null }
           { startTime ? <button type="button" onClick={this.reset}>Reset</button> : null }
         </div>
-        <div>isRunning: {isRunning}</div>
         <div>startTime: {startTime}</div>
         <div>pauseTime: {pauseTime}</div>
         <div>Current Round: {interval.round}</div>

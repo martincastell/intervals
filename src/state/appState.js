@@ -15,14 +15,12 @@ export function setRoundTimeTo(roundTime) {
 
 export function start() {
   return {
-    isRunning: true,
     startTime: Date.now(),
   };
 }
 
 export function reset() {
   return {
-    isRunning: false,
     startTime: null,
     pauseTime: null,
   };
@@ -30,7 +28,6 @@ export function reset() {
 
 export function pause() {
   return {
-    isRunning: false,
     pauseTime: Date.now(),
   };
 }
@@ -39,13 +36,12 @@ export function resume({pauseTime, startTime}) {
   const now = Date.now();
 
   return {
-    isRunning: true,
     startTime: (now - pauseTime) + startTime,
     pauseTime: null,
   };
 }
 
-export function getRunningIntervalState({isRunning, config, startTime, pauseTime}) {
+export function getRunningIntervalState({config, startTime, pauseTime}) {
   if (startTime) {
     const now = Date.now();
     const totalElapsed = ((pauseTime || now) - startTime) / 1000;
