@@ -7,6 +7,7 @@ import {
 } from './state/appState';
 import IntervalConfig from './components/IntervalConfig/IntervalConfig';
 import {pipe} from './util/functional';
+import Button from './components/Button/Button';
 
 const getEventTargetValue = (event) => event.target.value;
 
@@ -44,21 +45,24 @@ class App extends Component {
     const {status, round, roundRemaining} = getRunningIntervalState(this.state);
 
     return (
-      <div className="App">
+      <div className="app">
         <IntervalConfig config={config}
                         onRoundsChange={this.onRoundsChange}
                         onRoundTimeChange={this.onRoundTimeChange} />
-        <div>
-          { status === INTERVAL_STATUS.STOPPED ? <button type="button" onClick={this.start}>Start</button> : null }
-          { status === INTERVAL_STATUS.RUNNING ? <button type="button" onClick={this.pause}>Pause</button> : null }
-          { status === INTERVAL_STATUS.PAUSED ? <button type="button" onClick={this.resume}>Resume</button> : null }
-          { status === INTERVAL_STATUS.RUNNING || status === INTERVAL_STATUS.PAUSED ?
-            <button type="button" onClick={this.reset}>Reset</button> :
-            null
-          }
+        <div style={{margin: '20px'}}>
+          <div className="app__actions">
+            { status === INTERVAL_STATUS.STOPPED ? <Button onClick={this.start}>Start</Button> : null }
+            { status === INTERVAL_STATUS.RUNNING ? <Button onClick={this.pause}>Pause</Button> : null }
+            { status === INTERVAL_STATUS.PAUSED ? <Button onClick={this.resume}>Resume</Button> : null }
+            {
+              status === INTERVAL_STATUS.RUNNING || status === INTERVAL_STATUS.PAUSED ?
+                <Button className="button--secondary" onClick={this.reset}>Reset</Button> :
+                null
+            }
+          </div>
+          <div style={{fontSize: 36, margin: '12px 0'}}>{roundRemaining}</div>
+          <div>Round: {round} out of {config.rounds}</div>
         </div>
-        <div>Current Round: {round}</div>
-        <div>Current Round Remaining: {roundRemaining}</div>
       </div>
     );
   }
