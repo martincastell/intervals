@@ -1,0 +1,33 @@
+.button {
+  display: inline-block;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 6px;
+  min-width: 100px;
+
+  height: 32px;
+  line-height: 32px;
+
+  background: #2196F3;
+  color: white;
+}
+
+.button:hover {
+  background: #1976D2;
+}
+.button:active {
+  background: #1565C0;
+}
+
+.button--secondary {
+  background: #ddd;
+  color: #333;
+}
+.button--secondary:hover {
+  background: #aaa;
+  color: white;
+}
+.button--secondary:active {
+  background: #888;
+  color: white;
+}
