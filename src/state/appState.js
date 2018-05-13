@@ -19,31 +19,46 @@ export function setRoundTimeTo(roundTime) {
   return (state) => ({ config: updateConfig(state.config, {roundTime}) });
 }
 
-export function start() {
+export function start({config}) {
   return {
-    startTime: Date.now(),
+    instance: {
+      rounds: config.rounds,
+      roundTime: config.roundTime,
+      startTime: Date.now(),
+    },
   };
 }
 
 export function reset() {
   return {
-    startTime: null,
-    pauseTime: null,
+    instance: {
+      rounds: null,
+      roundTime: null,
+      startTime: null,
+      pauseTime: null,
+    },
   };
 }
 
-export function pause() {
+export function pause({instance}) {
   return {
-    pauseTime: Date.now(),
+    instance: {
+      ...instance,
+      pauseTime: Date.now(),
+    },
   };
 }
 
-export function resume({pauseTime, startTime}) {
+export function resume({instance}) {
+  const {pauseTime, startTime} = instance;
   const now = Date.now();
 
   return {
-    startTime: (now - pauseTime) + startTime,
-    pauseTime: null,
+    instance: {
+      ...instance,
+      startTime: (now - pauseTime) + startTime,
+      pauseTime: null,
+    },
   };
 }
 
@@ -57,17 +72,17 @@ function getRound(totalElapsed, roundTime) {
   return Math.floor(totalElapsed/roundTime) + 1;
 }
 
-export function stopIfDone(state) {
-  const totalElapsed = getTotalElapsed(state);
-  const round = getRound(totalElapsed, state.config.roundTime);
-  return round > state.config.rounds ? { startTime: null } : null;
+export function stopIfDone({instance}) {
+  const totalElapsed = getTotalElapsed(instance);
+  const round = getRound(totalElapsed, instance.roundTime);
+  return round > instance.rounds ? { startTime: null } : null;
 }
 
-export function getRunningIntervalState({config, startTime, pauseTime}) {
+export function getRunningIntervalState({rounds, roundTime, startTime, pauseTime}) {
   if (startTime) {
     const totalElapsed = getTotalElapsed({pauseTime, startTime});
-    const round = getRound(totalElapsed, config.roundTime);
-    const roundRemaining = round * config.roundTime - totalElapsed;
+    const round = getRound(totalElapsed, roundTime);
+    const roundRemaining = round * roundTime - totalElapsed;
 
     return {
       status: pauseTime ? INTERVAL_STATUS.PAUSED : INTERVAL_STATUS.RUNNING,
@@ -78,7 +93,7 @@ export function getRunningIntervalState({config, startTime, pauseTime}) {
     return {
       status: INTERVAL_STATUS.STOPPED,
       round: 1,
-      roundRemaining: config.roundTime,
+      roundRemaining: roundTime,
     }
   }
 }
