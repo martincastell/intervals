@@ -14,19 +14,23 @@ const getEventTargetValue = (event) => event.target.value;
 class App extends Component {
 
   state = {
+    request: null,
     config: {
       rounds: 10,
       roundTime: 10,
     },
-    request: null,
-    // interval instance...
-    startTime: null,
-    pauseTime: null,
+    instance: {
+      rounds: null,
+      roundTime: null, // in seconds
+      startTime: null,
+      pauseTime: null,
+    },
   };
 
   // Animation loop
   tick = () => this.setState(stopIfDone, () => {
-    const isRunning = this.state.startTime && !this.state.pauseTime;
+    const {instance} = this.state;
+    const isRunning = instance.startTime && !instance.pauseTime;
     this.setState({ request: isRunning ? requestAnimationFrame(this.tick) : null });
   });
 
@@ -41,8 +45,8 @@ class App extends Component {
   onRoundTimeChange = pipe(getEventTargetValue, (roundTime) => this.setState(setRoundTimeTo(roundTime)));
 
   render() {
-    const {config} = this.state;
-    const {status, round, roundRemaining} = getRunningIntervalState(this.state);
+    const {config, instance} = this.state;
+    const {status, round, roundRemaining} = getRunningIntervalState(instance);
 
     return (
       <div className="app">
@@ -61,7 +65,7 @@ class App extends Component {
             }
           </div>
           <div style={{fontSize: 36, margin: '12px 0'}}>{roundRemaining}</div>
-          <div>Round: {round} out of {config.rounds}</div>
+          { status !== INTERVAL_STATUS.STOPPED ? <div>Round: {round} out of {instance.rounds}</div> : null }
         </div>
       </div>
     );
