@@ -2,12 +2,21 @@ import React, { Component } from 'react';
 import 'normalize.css';
 import './App.css';
 import {
-  getRunningIntervalState, INTERVAL_STATUS, pause, reset, resume, setRoundsTo, setRoundTimeTo, start,
+  getRunningIntervalState, 
+  INTERVAL_STATUS, 
+  pause, 
+  reset, 
+  resume, 
+  setRoundsTo, 
+  setRoundTimeTo, 
+  start,
   stopIfDone
 } from './state/appState';
-import IntervalConfig from './components/IntervalConfig/IntervalConfig';
 import {pipe} from './util/functional';
-import Button from './components/Button/Button';
+import {beep} from './util/sound';
+import IntervalConfig from './components/IntervalConfig/IntervalConfig';
+import IntervalInstance from './components/IntervalInstance/IntervalInstance';
+import IntervalActions from './components/IntervalActions/IntervalActions';
 
 const getEventTargetValue = (event) => event.target.value;
 
@@ -35,7 +44,7 @@ class App extends Component {
   });
 
   // State
-  start = pipe(() => this.setState(start), this.tick);
+  start = pipe(() => this.setState(start), this.tick, beep);
   resume = pipe(() => this.setState(resume), this.tick);
   pause = () => this.setState(pause);
   reset = () => this.setState(reset);
@@ -46,7 +55,8 @@ class App extends Component {
 
   render() {
     const {config, instance} = this.state;
-    const {status, round, roundRemaining} = getRunningIntervalState(instance);
+    const intervalState = getRunningIntervalState(instance);
+    const status = intervalState.status;
 
     return (
       <div className="app">
@@ -55,17 +65,15 @@ class App extends Component {
                         onRoundTimeChange={this.onRoundTimeChange} />
         <div style={{margin: '20px'}}>
           <div className="app__actions">
-            { status === INTERVAL_STATUS.STOPPED ? <Button onClick={this.start}>Start</Button> : null }
-            { status === INTERVAL_STATUS.RUNNING ? <Button onClick={this.pause}>Pause</Button> : null }
-            { status === INTERVAL_STATUS.PAUSED ? <Button onClick={this.resume}>Resume</Button> : null }
-            {
-              status === INTERVAL_STATUS.RUNNING || status === INTERVAL_STATUS.PAUSED ?
-                <Button className="button--secondary" onClick={this.reset}>Reset</Button> :
-                null
-            }
+            <IntervalActions 
+              status={status}
+              onStart={this.start}
+              onPause={this.pause}
+              onResume={this.resume}
+              onReset={this.reset}
+            />
           </div>
-          <div style={{fontSize: 36, margin: '12px 0'}}>{roundRemaining}</div>
-          { status !== INTERVAL_STATUS.STOPPED ? <div>Round: {round} out of {instance.rounds}</div> : null }
+          <IntervalInstance {...intervalState} totalRounds={instance.rounds} />
         </div>
       </div>
     );

@@ -22,8 +22,8 @@ export function setRoundTimeTo(roundTime) {
 export function start({config}) {
   return {
     instance: {
-      rounds: config.rounds,
-      roundTime: config.roundTime,
+      rounds: Number.parseInt(config.rounds, 10),
+      roundTime: Number.parseInt(config.roundTime, 10),
       startTime: Date.now(),
     },
   };
@@ -75,7 +75,9 @@ function getRound(totalElapsed, roundTime) {
 export function stopIfDone({instance}) {
   const totalElapsed = getTotalElapsed(instance);
   const round = getRound(totalElapsed, instance.roundTime);
-  return round > instance.rounds ? { startTime: null } : null;
+  return round > instance.rounds ? 
+  { instance: { ...instance, startTime: null } } : 
+  null;
 }
 
 export function getRunningIntervalState({rounds, roundTime, startTime, pauseTime}) {
